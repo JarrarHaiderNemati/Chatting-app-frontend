@@ -116,10 +116,10 @@ export default function ChatRoom() {
       room:room,
       message:message
     };
-    sendSound.play(); //Play the send sound effect
+    
     setMessage(''); //Clear the message variable
     socketRef.current.emit('send_message',msgData); //Call the socket endpoint
-    
+    sendSound.play(); //Play the send sound effect
   };
 
   const typingIndicator=(value)=>{ //Displays who is typing
