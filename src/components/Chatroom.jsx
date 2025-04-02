@@ -42,6 +42,8 @@ export default function ChatRoom() {
     // Handle received chat message
     const handleMessage = (msgData) => {
       if(msgData.userName!==userName) { //Play the sound effect on others messages
+          msgSound.pause(); //In case the sound is already playing
+          msgSound.currentTime=0; //Reset the audio ( to be played from start again)
           msgSound.play(); //Play the message sound effect
       }
       setMessages((prev) => [...prev, msgData]);
@@ -119,6 +121,8 @@ export default function ChatRoom() {
     
     setMessage(''); //Clear the message variable
     socketRef.current.emit('send_message',msgData); //Call the socket endpoint
+    sendSound.pause(); //In case already playing
+    sendSound.currentTime=0; //Reset the start time
     sendSound.play(); //Play the send sound effect
   };
 
