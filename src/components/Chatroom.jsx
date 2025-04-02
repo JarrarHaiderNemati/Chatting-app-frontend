@@ -6,6 +6,7 @@ import Filter from 'bad-words';
 const filter=new Filter();
 import io from 'socket.io-client';
 const msgSound=new Audio('/message.mp3'); //Sound effect for a new message
+const sendSound=new Audio('/pop-sound.mp3'); //Sound effect for sending a msg
 
 export default function ChatRoom() {
   
@@ -115,6 +116,7 @@ export default function ChatRoom() {
       room:room,
       message:message
     };
+    sendSound.play(); //Play the send sound effect
     setMessage(''); //Clear the message variable
     socketRef.current.emit('send_message',msgData); //Call the socket endpoint
     
