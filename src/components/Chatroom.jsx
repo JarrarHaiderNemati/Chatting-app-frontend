@@ -20,7 +20,7 @@ export default function ChatRoom() {
   
   useEffect(() => {
     //Initilaize the current socket
-    socketRef.current = io("https://chatting-app-backend-0ap7.onrender.com", {
+    socketRef.current = io("https://chatting-app-backend-3nb7.onrender.com", {
       transports: ["websocket"],   // 👈 Force websocket protocol
       secure: true,
     });
