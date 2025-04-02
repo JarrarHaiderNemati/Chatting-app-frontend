@@ -18,6 +18,7 @@ export default function ChatRoom() {
   const [listOfUsers,setList]=useState([]); //Array to store the online users list
   const [typingUser,setTypinguser]=useState(''); //Who is typing
   
+  const typingTimeoutRef = useRef(null); // 👈 useRef to track the timeout
   useEffect(() => {
     //Initilaize the current socket
     socketRef.current = io("https://chatting-app-backend-3nb7.onrender.com", {
@@ -61,13 +62,19 @@ export default function ChatRoom() {
     };
 
     //Who is typing
-    const displayTyping=(msg)=>{
-      setTypinguser(msg); //Backend sends data in form of 'X is typing...'
-
-      setTimeout(()=>{ //Clear after 1.5 seconds of inactivity
+    const displayTyping = (msg) => {
+      setTypinguser(msg); // Show who is typing
+    
+      // Clear the previous timeout if still running
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    
+      // Set a new timeout
+      typingTimeoutRef.current = setTimeout(() => {
         setTypinguser('');
-      },1500)
-    }
+      }, 1500);
+    };
   
     // Register listeners ONCE
     socket.on('receive_message', handleMessage); 
