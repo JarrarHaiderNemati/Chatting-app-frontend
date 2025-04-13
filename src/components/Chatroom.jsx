@@ -116,7 +116,12 @@ export default function ChatRoom() {
     const msgData={ //Create an object with the required parameters for the backend socket of recieving messages
       userName:userName,
       room:room,
-      message:message
+      message:message,
+      timeStamp: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
     };
     
     setMessage(''); //Clear the message variable
