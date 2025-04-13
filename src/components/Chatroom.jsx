@@ -18,6 +18,17 @@ export default function ChatRoom() {
   const messagesEndref=useRef(null);
   const [listOfUsers,setList]=useState([]); //Array to store the online users list
   const [typingUser,setTypinguser]=useState(''); //Who is typing
+
+  const handleVisibilityChange=()=>{ //Socket will disconnect once user minimizes tab and then will be taken to join page again when opened
+    if(document.visibilityState==='hidden') {
+      console.log('🔕 Tab hidden or minimized. Disconnecting...');
+      socketRef.current.disconnect(); // Disconnect the socket
+      navigate('/'); // Redirect to join page
+    }
+  }
+
+  // Listen for tab visibility changes
+  document.addEventListener('visibilitychange', handleVisibilityChange);
   
   const typingTimeoutRef = useRef(null); // 👈 useRef to track the timeout
   useEffect(() => {
