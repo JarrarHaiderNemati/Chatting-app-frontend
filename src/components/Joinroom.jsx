@@ -70,7 +70,7 @@ export default function JoinRoom() {
                   <input
                     type="text"
                     placeholder="e.g. Alex"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                     required
                     onChange={(e)=>setUsername(e.target.value)}
                   />
@@ -97,7 +97,7 @@ export default function JoinRoom() {
                   <input
                     type="text"
                     placeholder="e.g. general, football, random"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                     required
                     onChange={(e)=>setRoom(e.target.value)}
                   />
