@@ -105,6 +105,7 @@ export default function ChatRoom() {
       socket.off('typing_list',displayTyping);
       socket.disconnect(); //fully remove the socket
       clearTimeout(typingTimeoutRef.current); // ⛔ prevent leftover timeouts
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
   
