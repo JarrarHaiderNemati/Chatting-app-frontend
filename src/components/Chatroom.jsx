@@ -19,17 +19,6 @@ export default function ChatRoom() {
   const [listOfUsers,setList]=useState([]); //Array to store the online users list
   const [typingUser,setTypinguser]=useState(''); //Who is typing
 
-  const handleVisibilityChange=()=>{ //Socket will disconnect once user minimizes tab and then will be taken to join page again when opened
-    if(document.visibilityState==='hidden') {
-      console.log('🔕 Tab hidden or minimized. Disconnecting...');
-      socketRef.current.disconnect(); // Disconnect the socket
-      navigate('/'); // Redirect to join page
-    }
-  }
-
-  // Listen for tab visibility changes
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  
   const typingTimeoutRef = useRef(null); // 👈 useRef to track the timeout
   useEffect(() => {
     //Initilaize the current socket
@@ -89,6 +78,18 @@ export default function ChatRoom() {
         setTypinguser('');
       }, 1500);
     };
+
+    const isMobileDevice = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent); //Checks if device is mobile (navigator.userAgemt returns gives info abour browser and device and then we match expressions keywords)
+    const handleVisibilityChange=()=>{ //Socket will disconnect once user minimizes tab and then will be taken to join page again when opened (only on phones and tablets)
+      if(isMobileDevice&&document.visibilityState==='hidden') {
+        console.log('🔕 Tab hidden or minimized. Disconnecting...');
+        socketRef.current.disconnect(); // Disconnect the socket
+        navigate('/'); // Redirect to join page
+      }
+    }
+  
+    // Listen for tab visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
   
     // Register listeners ONCE
     socket.on('receive_message', handleMessage); 
