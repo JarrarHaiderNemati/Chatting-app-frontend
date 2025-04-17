@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+const backendLink="https://chatting-app-backend-3nb7.onrender.com"; //Backend link
 
 const LoginPage = () => {
   const [email, setEmail] = useState(""); //Email of user
@@ -24,7 +25,7 @@ const LoginPage = () => {
     }
     setChecking(true); //Show checking... message
     try {
-      const res = await fetch("http://localhost:5000/login", {
+      const res = await fetch(`${backendLink}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

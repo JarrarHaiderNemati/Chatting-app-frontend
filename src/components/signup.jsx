@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+const backendLink="https://chatting-app-backend-3nb7.onrender.com"; //Backend link
 
 const SignupPage = () => {
   const [userName, setUserName] = useState(""); //User name
@@ -31,7 +32,7 @@ const SignupPage = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/signup", {
+      const res = await fetch(`${backendLink}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email , userName, password }),
