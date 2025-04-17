@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import io from 'socket.io-client';
 import Filter from "bad-words";
 const filter=new Filter();
-const backendLink="http://localhost:5000"; //Backend link
+const backendLink="https://chatting-app-backend-3nb7.onrender.com"; //Backend link
 
 function PrivatePage() {
   const [message,setMessage]=useState(""); //Message typed
@@ -22,6 +22,7 @@ function PrivatePage() {
   useEffect(()=>{
     socketRef.current = io(`${backendLink}`, {
       transports: ["websocket"],   // 👈 Force websocket protocol
+      secure: true,
     });
     const socket=socketRef.current;
     const email=sessionStorage.getItem('email');
