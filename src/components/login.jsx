@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-const backendLink="https://chatting-app-backend-3nb7.onrender.com"; //Backend link
+const backendLink = "https://chatting-app-backend-3nb7.onrender.com"; //Backend link
 //const backendLink="http://localhost:5000"; //Backend link
 
 const LoginPage = () => {
   const [email, setEmail] = useState(""); //Email of user
   const [password, setPassword] = useState(""); //Password of user
   const [error, setError] = useState(""); //For displaying error messages in login process
-  const [loggedIn,setLoggedin]=useState(false); //Variable which shows if successfully logged in
-  const [checking,setChecking]=useState(false); //MEssage to check credentials till the time response is being fetched from backend
+  const [loggedIn, setLoggedin] = useState(false); //Variable which shows if successfully logged in
+  const [checking, setChecking] = useState(false); //MEssage to check credentials till the time response is being fetched from backend
+  const [showDemo, setShowDemo] = useState(false); // Toggles demo video
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -16,7 +17,7 @@ const LoginPage = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //Email regex
     if (!email || !password) {
       setError("Please fill in all fields");
-      setTimeout(()=>setError(""),1500); //Clear error string/message
+      setTimeout(() => setError(""), 1500); //Clear error string/message
       return;
     }
     if (!emailRegex.test(email)) { //Test email
@@ -39,32 +40,32 @@ const LoginPage = () => {
       if (res.ok) {
         setChecking(false); //Disable checking message
         setLoggedin(true);
-        setTimeout(()=>{
+        setTimeout(() => {
           setLoggedin(false);
           navigate('/home'); //Go to home page
-        }  
-          ,2000);
+        }
+          , 2000);
         console.log("✅ Login successful");
         sessionStorage.setItem("email", email); // Save username in sessionStorage for socket use later
       } else {
         setChecking(false); //Disable checking message
         setError(data.message || "Login failed");
-        setTimeout(()=>setError(""),1500); //Clear error string/message
+        setTimeout(() => setError(""), 1500); //Clear error string/message
       }
     } catch (err) {
       setChecking(false); //Disable checking message
       setError("Server error");
-      setTimeout(()=>setError(""),1500); //Clear error string/message
+      setTimeout(() => setError(""), 1500); //Clear error string/message
     }
   };
 
   return (
     <div className="min-h-screen bg-yellow-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-sm">
-      <div className="mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded-md text-xs text-center">
-        ⚠️ <strong>Important Note:</strong> Any bugs, delayed messages, or slow responses are most likely due to the free backend server.  
-        If needed, I can switch to a paid one for better performance.
-      </div>
+        <div className="mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded-md text-xs text-center">
+          ⚠️ <strong>Important Note:</strong> Any bugs, delayed messages, or slow responses are most likely due to the free backend server.
+          If needed, I can switch to a paid one for better performance.
+        </div>
         <h1 className="text-2xl font-bold text-center text-orange-600 mb-4">MangoChat</h1>
         <p className="text-sm text-center text-gray-500 mb-6">Login to start chatting</p>
 
@@ -102,6 +103,24 @@ const LoginPage = () => {
             </span>
           </p>
         </Link>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowDemo(!showDemo)}
+            className="text-orange-600 hover:underline text-sm"
+          >
+            🎬 Show Demo (progress till now)
+          </button>
+        </div>
+
+        {showDemo && (
+          <div className="mt-4">
+            <video controls className="w-full rounded-xl shadow-md">
+              <source src="/MangoChatDemo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        )}
 
       </div>
     </div>

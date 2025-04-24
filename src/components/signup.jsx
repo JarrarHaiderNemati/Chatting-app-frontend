@@ -9,6 +9,7 @@ const SignupPage = () => {
   const [confirmPassword, setConfirmPassword] = useState(""); //Confirm passwords
   const [error, setError] = useState(""); //Error string 
   const [success, setSuccess] = useState(""); //Success message
+  const [showDemo, setShowDemo] = useState(false); // Toggles demo video
   const navigate = useNavigate();
 
   const handleSignup = async () => {
@@ -114,6 +115,24 @@ const SignupPage = () => {
             <span className="text-orange-600 hover:underline cursor-pointer">Log in</span>
           </p>
         </Link>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowDemo(!showDemo)}
+            className="text-orange-600 hover:underline text-sm"
+          >
+            🎬 Show Demo (progress till now)
+          </button>
+        </div>
+
+        {showDemo && (
+          <div className="mt-4">
+            <video controls className="w-full rounded-xl shadow-md">
+              <source src="/MangoChatDemo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        )}
       </div>
     </div>
   );
