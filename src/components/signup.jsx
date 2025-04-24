@@ -60,6 +60,10 @@ const SignupPage = () => {
   return (
     <div className="min-h-screen bg-orange-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-sm">
+      <div className="mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded-md text-xs text-center">
+        ⚠️ <strong>Important Note:</strong> Any bugs, delayed messages, or slow responses are most likely due to the free backend server.  
+        If needed, I can switch to a paid one for better performance.
+      </div>
         <h1 className="text-2xl font-bold text-center text-orange-600 mb-4">Create Account</h1>
         <p className="text-sm text-center text-gray-500 mb-6">Join MangoChat now</p>
 

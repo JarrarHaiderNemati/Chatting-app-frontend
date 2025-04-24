@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import io from 'socket.io-client';
 import Filter from "bad-words";
 const filter=new Filter();
-const backendLink="https://chatting-app-backend-3nb7.onrender.com"; //Backend link
+//const backendLink="https://chatting-app-backend-3nb7.onrender.com"; //Backend link
+const backendLink="http://localhost:5000"; //Backend link
 
 function PrivatePage() {
   const [message,setMessage]=useState(""); //Message typed
@@ -16,7 +17,7 @@ function PrivatePage() {
   const [listOfmsgs,setListofmsgs]=useState([]); //List of messages between user and current recipient
   const [chatHistory,setChatHistory]=useState([]); //Chat history of user
   const [loadingHistory,setLoadinghistory]=useState(false); //Msg (Loading chat history) will be displayed when history will be fetched
-  const [historyNames,setHistorynames]=useState([]); //Names of those we chatted with
+  const [historyNames,setHistorynames]=useState({}); //Names adn emails of those we chatted with
   const socketRef = useRef(null);
 
   useEffect(()=>{
@@ -31,7 +32,7 @@ function PrivatePage() {
       socket.emit("join_private_chat", { email }); // ✅ emit *after* connection
     });
     socket.on('recieve_private_msg',msgRecieved); //Listener called when user sends a message to recipient , called by backend
-
+    setLoadinghistory(true); //Loading chat history msg
     getChatHistory(); //Get chat history
     return()=>{
       socket.disconnect(); //Disconnect the socket
@@ -40,20 +41,21 @@ function PrivatePage() {
 
   const getChatHistory=async()=>{ //Fetch chat history
     const email=sessionStorage.getItem('email'); //Get sender email
-    setLoadinghistory(true); //Display loading chat history
     const reqs=await fetch(`${backendLink}/chatHistory?sender=${email}`); //Fetch chat history
     if(reqs.ok) { //Chat history exists for sender
       const resp=await reqs.json();
+      setLoadinghistory(false); //Disable loading chat history msg
       setChatHistory(resp.findChat);
       setHistorynames(resp.names); //Names of users in chat history
       return;
     }
+    setLoadinghistory(false); //Disable loading chat history msg
     console.log('Chat history does not exist for sender ! ');
     setChatHistory([]); //No chat history
     }
 
   const msgRecieved=(messageData)=>{ //Msg is recieved
-    setListofmsgs((prev)=>[...prev,messageData]); //Add the message to the list of msgs
+    setListofmsgs((prev)=>[...prev,{senderEmail:currentEmail,recieverEmail:sessionStorage.getItem('email'),messages:[{sender:currentEmail,reciever:sessionStorage.getItem('email'),messageData:message,timeStamp:new Date}]}]); //Add the message to the list of msgs
   };
 
   const sendMsg=async()=>{ //Send message to socket and also save in db
@@ -96,15 +98,24 @@ function PrivatePage() {
     setChatHistory((prev) => { //Push user in chat history if not present
       const exists = prev.some(
         (chat) =>
-          (chat.senderEmail === sender && chat.recieverEmail === currentEmail) ||
-          (chat.senderEmail === currentEmail && chat.recieverEmail === sender)
+          (chat.senderEmail === email && chat.recieverEmail === currentEmail) ||
+          (chat.senderEmail === currentEmail && chat.recieverEmail === email)
       );
-      return exists ? prev : [...prev, { senderEmail: sender, recieverEmail: currentEmail, recieverUserName: currentName }];
+      return exists ? prev : [...prev, { senderEmail: email, recieverEmail: currentEmail, recieverUserName: currentName }];
     });
     
-    setHistorynames((prev) => { //Push user name in history names if not present
-      return prev.includes(currentName) ? prev : [...prev, currentName];
+    setHistorynames((prev) => { //Push user names in history names if not present
+      const alreadyExists = Object.values(prev).some(
+        (entry) => entry.email === currentEmail
+      );
+      if (alreadyExists) return prev;
+    
+      return {
+        ...prev,
+        [Object.keys(prev).length]: { name: currentName, email: currentEmail }
+      };
     });
+    
     
     setMessage(''); // Clear message input
   };
@@ -143,9 +154,18 @@ function PrivatePage() {
     }, 500);
   };
 
-  const currentChat=(user)=>{ //With whom we are chatting or are bout to chat ( displayed on right )
+  const currentChat=async(user)=>{ //With whom we are chatting or are bout to chat ( displayed on right )
+    const email=sessionStorage.getItem('email'); //Retreive email
     setCurrentname(user.userName); //Set current username
     setCurrentemail(user.email); //Set current email
+    //Fetch all msgs with the user we clicked
+    const reqs=await fetch(`${backendLink}/retrievemMsgs?userEmail=${email}&otherEmail=${user.email}`);
+    if(reqs.ok) {
+      const resp=await reqs.json(); 
+      setListofmsgs(resp);
+      return;
+    }
+    setListofmsgs([]);
   }
 
   return (
@@ -194,14 +214,17 @@ function PrivatePage() {
             ) : (
               <div className="p-4 text-center text-gray-400 text-sm">Searching...</div>
             )
-          ) : chatHistory.length === 0 ? (
+          ) : chatHistory.length === 0&&!loadingHistory ? (
             <div className="p-4 text-center text-gray-500 text-sm">
               You haven’t chatted with anyone yet.
             </div>
           ) : (
             chatHistory.map((user, idx) => (
-              <div key={idx} className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b">
-                <p className="font-bold text-gray-800">~{historyNames[idx]}</p>
+              <div onClick={()=>{
+                setCurrentname(historyNames[idx].name);
+                setCurrentemail(historyNames[idx].email)
+              }} key={idx} className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b">
+                <p className="font-bold text-gray-800">~{historyNames[idx].name}</p>
                 <p className="text-xs text-gray-500">
                   {Array.isArray(user.messages) && user.messages.length > 0
                     ? user.messages[user.messages.length - 1].text
@@ -210,6 +233,7 @@ function PrivatePage() {
               </div>
             ))
           )}
+           {loadingHistory&&<p className="text-gray-800 font-bold text-sm">Loading chat history...</p>}
         </div>
       </div>
 
@@ -233,7 +257,7 @@ function PrivatePage() {
     <div className="flex-1 p-4 overflow-y-auto space-y-2">
   {listOfmsgs.map((msg, index) => {
     const sender = sessionStorage.getItem("email"); // get current user email
-    const isMine = msg.sender === sender;
+    const isMine = msg.messages.sender === sender;
 
     return (
       <div
@@ -248,8 +272,8 @@ function PrivatePage() {
           <p className="font-bold text-gray-600">
             {isMine ? "You" : currentName}
           </p>
-          <p className="text-gray-800">{msg.message}</p>
-          <p className="text-xs text-gray-400">{msg.timeStamp}</p>
+          <p className="text-gray-800">{msg.messages.text}</p>
+          <p className="text-xs text-gray-400">{msg.messages.timeStamp}</p>
         </div>
       </div>
     );

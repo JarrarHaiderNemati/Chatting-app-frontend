@@ -14,7 +14,7 @@ const HomePage = () => {
           onClick={() => navigate("/private-chat")}
           className="w-full bg-orange-500 text-white py-3 rounded-xl text-lg hover:bg-orange-600 transition"
         >
-          🔐 Private Chat
+          🔐 Private Chat (WORK IN PROGRESS)
         </button>
 
         <Link to='/joinroom'>
