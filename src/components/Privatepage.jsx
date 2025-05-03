@@ -55,7 +55,7 @@ function PrivatePage() {
     }
 
   const msgRecieved=(messageData)=>{ //Msg is recieved
-    setListofmsgs((prev)=>[...prev,{senderEmail:currentEmail,recieverEmail:sessionStorage.getItem('email'),messages:[{sender:currentEmail,reciever:sessionStorage.getItem('email'),messageData:message,timeStamp:new Date}]}]); //Add the message to the list of msgs
+    setListofmsgs((prev)=>[...prev,{senderEmail:currentEmail,recieverEmail:sessionStorage.getItem('email'),messages:[{sender:messageData.sender,reciever:messageData.reciever,message:messageData.message,timeStamp:new Date}]}]); //Add the message to the list of msgs
   };
 
   const sendMsg=async()=>{ //Send message to socket and also save in db
@@ -159,13 +159,13 @@ function PrivatePage() {
     setCurrentname(user.userName); //Set current username
     setCurrentemail(user.email); //Set current email
     //Fetch all msgs with the user we clicked
-    const reqs=await fetch(`${backendLink}/retrievemMsgs?userEmail=${email}&otherEmail=${user.email}`);
+    const reqs=await fetch(`${backendLink}/chatWithUser?sender=${email}`);
     if(reqs.ok) {
       const resp=await reqs.json(); 
-      setListofmsgs(resp);
+      setMessages(resp);
       return;
     }
-    setListofmsgs([]);
+    setMessages([]);
   }
 
   return (
@@ -227,7 +227,7 @@ function PrivatePage() {
                 <p className="font-bold text-gray-800">~{historyNames[idx].name}</p>
                 <p className="text-xs text-gray-500">
                   {Array.isArray(user.messages) && user.messages.length > 0
-                    ? user.messages[user.messages.length - 1].text
+                    ? user.messages[user.messages.length - 1].message
                     : "No messages yet"}
                 </p>
               </div>
@@ -255,29 +255,28 @@ function PrivatePage() {
     </div>
 
     <div className="flex-1 p-4 overflow-y-auto space-y-2">
-  {listOfmsgs.map((msg, index) => {
-    const sender = sessionStorage.getItem("email"); // get current user email
-    const isMine = msg.messages.sender === sender;
+    {listOfmsgs.map((msgGroup, index) => (
+  <React.Fragment key={index}>
+    {msgGroup.messages.map((message, i) => {
+      const sender = sessionStorage.getItem("email");
+      const isMine = message.sender === sender;
 
-    return (
-      <div
-        key={index}
-        className={`flex ${isMine ? "justify-end" : "justify-start"}`}
-      >
-        <div
-          className={`max-w-xs px-4 py-2 rounded-xl shadow text-sm ${
-            isMine ? "bg-green-100" : "bg-blue-200"
-          }`}
-        >
-          <p className="font-bold text-gray-600">
-            {isMine ? "You" : currentName}
-          </p>
-          <p className="text-gray-800">{msg.messages.text}</p>
-          <p className="text-xs text-gray-400">{msg.messages.timeStamp}</p>
+      return (
+        <div key={i} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+          <div
+            className={`max-w-xs px-4 py-2 rounded-xl shadow text-sm ${
+              isMine ? "bg-green-100" : "bg-blue-200"
+            }`}
+          >
+            <p className="font-bold text-gray-600">{isMine ? "You" : currentName}</p>
+            <p className="text-gray-800">{message.message}</p>
+            <p className="text-xs text-gray-400">{new Date(message.timeStamp).toLocaleTimeString()}</p>
+          </div>
         </div>
-      </div>
-    );
-  })}
+      );
+    })}
+  </React.Fragment>
+))}
 </div>
 
     <div className="p-4 border-t bg-white flex items-center gap-2">
